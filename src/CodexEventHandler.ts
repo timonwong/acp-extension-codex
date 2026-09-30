@@ -871,7 +871,10 @@ export class CodexEventHandler {
                 return await createCommandExecutionUpdate(event.item);
             }
             case "mcpToolCall":
-                return await createMcpToolCallUpdate(event.item);
+                return await createMcpToolCallUpdate(
+                    event.item,
+                    this.sessionState.mcpApps?.track(event.threadId, event.item) ?? null,
+                );
             case "dynamicToolCall":
                 return await createDynamicToolCallUpdate(event.item);
             case "webSearch":
@@ -919,6 +922,7 @@ export class CodexEventHandler {
                     status: event.item.status === "completed" ? "completed" : "failed",
                 }
             case "mcpToolCall":
+                this.sessionState.mcpApps?.track(event.threadId, event.item);
                 return {
                     sessionUpdate: "tool_call_update",
                     toolCallId: event.item.id,

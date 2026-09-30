@@ -35,7 +35,7 @@ import {
     type TerminalOutputMode,
 } from "./TerminalOutputMode";
 import {createContextCompactionMeta} from "./ContextCompactionMeta";
-import {LODY_TOOL_NAMES} from "acp-extension-core";
+import {LODY_TOOL_NAMES, type LodyMcpAppToolCallMeta} from "acp-extension-core";
 import {commandToolName, functionToolName} from "./ToolCallName";
 
 const imageGenerationMeta = {lody: {toolName: LODY_TOOL_NAMES.imageGeneration}} as const;
@@ -153,7 +153,8 @@ export function createCommandExecutionCompleteUpdate(
 }
 
 export async function createMcpToolCallUpdate(
-    item: ThreadItem & { type: "mcpToolCall" }
+    item: ThreadItem & { type: "mcpToolCall" },
+    mcpApp: LodyMcpAppToolCallMeta | null = null,
 ): Promise<UpdateSessionEvent> {
     return {
         ...await createExecuteToolCallUpdate(
@@ -162,7 +163,9 @@ export async function createMcpToolCallUpdate(
             createMcpRawInput(item.server, item.tool, item.arguments),
             createMcpRawOutput(item.result, item.error),
         ),
-        _meta: { is_mcp_tool_call: true },
+        _meta: mcpApp === null
+            ? { is_mcp_tool_call: true }
+            : { is_mcp_tool_call: true, lody: { mcpApp } },
     };
 }
 
